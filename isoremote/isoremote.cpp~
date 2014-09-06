@@ -1,0 +1,158 @@
+/*
+remote control iso config via raspi (or other Linux machines) thru buildin serial/USB client interface 
+
+// main function for extern use
+// initalise serial communication
+void isoremotebegin(void);
+// set camera to given ISO level
+void setisolevel(int);
+// get actually ISO level from camera
+void getisolevel(void);
+// reads serial port
+void getanswer(*int);
+// power of Linux client
+void clientpoweroff(void);
+
+// library subfunctions
+// converts ISO level
+int decodeisolevel(int);
+int encodeisolevel(int);
+
+
+*/
+
+#include <isoremote.h>
+
+
+// initalise serial communication
+void isoremotebegin(void)
+	{
+	// initial serial port with 9600 bps
+  	Serial.begin(9600);
+  	// send greetings over serial
+  	Serial.print("FototimerNG serial communication started\n");
+	return;	
+	}
+
+// set ISO level
+void setisolevel(int isolevel)
+	{	
+	// temp variables
+	int asciisign = 0;
+	// convert real ISO level to ASCII sign
+	asciisign = encodeisolevel(isolevel);
+	// send readind command over serial
+	// Serial.print(asciisign);
+	Serial.write(asciisign);	
+	Serial.print("\n");
+	return;	
+	}
+
+
+// get current ISO level
+void getisolevel(void)
+	{
+	// send reading command over serial
+	Serial.print("ISO\n");
+	return;	
+	}
+
+// read serial input and decode to real ISO level
+int getanswer(int *isolevel)
+	{
+	// temp variable
+	int readbyte = 0;
+	while (Serial.available() > 0)
+       		{
+       		// read the incoming byte:
+       		readbyte = Serial.read();
+		// check ASCII       		
+		if (readbyte >= 48 && readbyte <= 69)
+         		{
+			// convert from ASCII code to real level         		
+			*isolevel = decodeisolevel(readbyte);
+         		}
+		if (readbyte == 182)
+			{
+			// ISO level ist set to zero, power off client
+			*isolevel = 0;
+			}
+       		}
+	// return real ISO level	
+	return;	
+	}
+
+// poweroff linux client
+void clientpoweroff(void)
+	{
+	Serial.print("poweroff\n");
+	}
+
+  
+/***************************************
+
+ISO 100 = 1 = ASCII 49
+ISO 200 = 4 = ASCII 52
+ISO 400 = 7 = ASCII 55
+ISO 800 = 10 = ASCII 65
+ISO 1600 = 13 = ASCII 68
+ISO 3200 = 14 = ASCII 69
+
+*/
+
+// converts one sign (ASCII) to ISO level
+  int decodeisolevel(int sign)
+    {
+    int temp_isolevel;
+    switch(sign)
+      {
+      case 49:
+        temp_isolevel = 100;
+        break;
+      case 52:
+        temp_isolevel = 200;
+        break;
+      case 55:
+        temp_isolevel = 400;
+        break;
+      case 65:
+        temp_isolevel = 800;
+        break;
+      case 68:
+        temp_isolevel = 1600;
+        break;
+      case 69:
+        temp_isolevel = 3200;
+        break;        
+      }
+    return temp_isolevel;
+    }
+
+// converts ISO level to one sign (ASCII)
+  int encodeisolevel(int temp_isolevel)
+    {
+    int sign;
+    switch(temp_isolevel)
+      {
+      case 100:
+        sign = 49;
+        break;
+      case 200:
+        sign = 52;
+        break;
+      case 400:
+        sign = 55;
+        break;
+      case 800:
+        sign = 65;
+        break;
+      case 1600:
+        sign = 68;
+        break;
+      case 3200:
+        sign = 69;
+        break;        
+      }
+    return sign;
+    }
+	

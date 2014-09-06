@@ -1,0 +1,3 @@
+EEPROManything	KEYWORD1
+EEPROM_writeAnything	KEYWORD2
+EEPROM_readAnything	KEYWORD2

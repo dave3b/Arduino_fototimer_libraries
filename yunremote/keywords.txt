@@ -1,0 +1,7 @@
+yunremote	KEYWORD1
+isoremotebegin	KEYWORD2
+setisolevel	KEYWORD2
+getisolevel	KEYWORD2
+decodeisolevel	KEYWORD2
+encodeisolevel	KEYWORD2
+getanswer	KEYWORD2

@@ -1,0 +1,3 @@
+PrintSubFunctions	KEYWORD1
+printtime	KEYWORD2
+printcursor	KEYWORD2

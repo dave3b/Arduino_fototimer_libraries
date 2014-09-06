@@ -1,0 +1,63 @@
+#include <exposuretimetable.h>
+
+/*************************************************
+  exposure time table overflow handling */
+ float expocalc(float expopara)
+ {
+ int iExpoStep;
+ float fExpoDiv;
+ float fExpoTime;
+ expostep = expostep + expopara;
+   if (expostep > 255)
+       {
+       expostep = expostep - 256;
+       expodiv = expodiv / 2;
+       if (expodiv < 1)
+         {
+         expodiv = 1;
+         expostep = expostep - expopara + 256;
+         }
+       }
+   if (expostep < 0)
+       {
+       expostep = expostep + 256;
+       expodiv = expodiv * 2;
+       if (expodiv > 1024)
+         {
+         expodiv = 1024;
+         expostep = expostep - expopara - 256;
+         }
+       }
+   iExpoStep = (int)expostep;
+   fExpoDiv = (float)expodiv;
+   fExpoTime = (float)expotab[iExpoStep];
+   fExpoTime = fExpoTime / fExpoDiv / 1000;
+   return fExpoTime;
+ }
+ 
+ /*****************************************
+ exposure table search / convert functions */
+ int getexposurediv(float timevalue)
+   {
+   int divfactor = 1;
+   timevalue = timevalue * 1000; // convert seconds to miliseconds
+   while (timevalue < (float)15041 / (float)divfactor)
+     {
+     divfactor = divfactor * 2;
+     }  
+   return divfactor; 
+   }
+
+ /*****************************************
+ exposure table search / convert functions */
+ float getexposurestep(int timevalue)
+   {
+   int askstep = 0;  
+   while (timevalue >= expotab[askstep])
+     {
+     ++askstep;  
+     }
+   return (float)(askstep-1);
+   }
+   
+   

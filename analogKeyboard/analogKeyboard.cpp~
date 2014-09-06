@@ -1,0 +1,123 @@
+#include "Arduino.h"
+#include <analogKeyboard.h>
+
+// variables need to be continuesly
+int lastkey = KEY_CODE_NEUTRAL; // saved key code off the last pressed key
+unsigned long lastkeytime = 0; // saved timecode from last key action
+int keyrepeatcount = 10; // counts up if key is continous pressed 10 is neutral
+
+/*********************************************
+   keyboard handling */
+int getKey(int *keyValueH, int *keyValueV)
+ {
+ int temp_int = 0; // just temp
+ int analogKey = 1024; // analog value of keyboard input to compare
+ int newkey = KEY_CODE_NEUTRAL; // new key code to compare with last one 
+ int keycode = KEY_CODE_NEUTRAL; // key code result
+ do
+   {
+   temp_int = analogRead(KEY_ANALOG_PIN) - analogKey;
+   analogKey = analogRead(KEY_ANALOG_PIN);
+   delay(10);
+   } while ( abs(temp_int) > 10);
+ newkey = analogKey / KEY_MATRIX_FACTOR;
+ if (newkey != lastkey)
+   {
+   keycode = newkey;
+   lastkey = keycode;
+   keyrepeatcount = 10;
+   }
+ // only key up and down can hold to increment or decrement continuesly
+ if (newkey == 5 || newkey == 7)
+   { 
+   if (lastkeytime + KEY_REPEAT_DELAY < millis())
+     {
+     lastkeytime = millis();
+     keycode = newkey;
+     ++keyrepeatcount;
+     if (keyrepeatcount > 40)
+	{
+	keyrepeatcount = 40;
+	}	
+     }
+   } 
+   // key handling
+   switch (keycode)
+     {
+     case KEY_CODE_OK:  
+     // key "O.K." ist pressed
+     *keyValueH = 0;
+     *keyValueV = 0;
+     break;
+     case 1:
+     // key "7" is pressed
+     *keyValueH = 0;
+     *keyValueV = 0;
+     break;
+     case KEY_CODE_LEFT:  
+     // key LEFT ist pressed
+     *keyValueH = -1;
+     *keyValueV = 0;
+     break;
+     case 3:
+     // key "1" is pressed
+     *keyValueH = 0;
+     *keyValueV = 0;
+     break;
+     case 4:
+     // key "0" is pressed
+     *keyValueH = 0;
+     *keyValueV = 0;
+     break;
+     case KEY_CODE_DOWN:  
+     // key DOWN ist pressed
+     //*keyValueV = -1 * pow(keyrepeatcount/10,2); // excellerate at continous pressed key
+     *keyValueV = -1 * (keyrepeatcount/10); // excellerate at continous pressed key
+     *keyValueH = 0;
+     break;
+     case 6:
+     // key "5" is pressed
+     *keyValueH = 0;
+     *keyValueV = 0;
+     break;     
+     case KEY_CODE_UP:  
+     // key UP ist pressed
+     //*keyValueV = 1 * pow(keyrepeatcount/10,2); // excellerate at continous pressed key
+     *keyValueV = 1 * (keyrepeatcount/10); // excellerate at continous pressed key
+     *keyValueH = 0;
+     break;
+     case KEY_CODE_CANCEL:  
+     // key Cancel/Stop ist pressed
+     *keyValueH = 0;
+     *keyValueV = 0;    
+     break;
+     case 9:
+     // key "9" is pressed
+     *keyValueH = 0;
+     *keyValueV = 0;
+     break;
+     case KEY_CODE_RIGHT:  
+     // key RIGHT ist pressed
+     *keyValueH = 1;
+     *keyValueV = 0;
+     break;
+     case 11:
+     // key "3" is pressed
+     *keyValueH = 0;
+     *keyValueV = 0;
+     break;
+     case 12:
+     // nothing to do
+     // clear keyvalues
+     *keyValueH = 0;
+     *keyValueV = 0;
+     break;
+     }
+ return keycode;
+ }
+
+
+int getkeyrepeatcount()
+{
+return keyrepeatcount;
+}
