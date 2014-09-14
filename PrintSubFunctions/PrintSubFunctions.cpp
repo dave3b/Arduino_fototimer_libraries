@@ -50,7 +50,7 @@ int cursor(int value, int target)
     		}
   	else
     		{
-    		return int(":");
+    		return 58;
     		}  
 
 	}
